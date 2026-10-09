@@ -71,6 +71,8 @@
     <b>Catálogo · <span id="count">…</span></b>
     <div class="r">
       <a href="index.html" target="_blank" rel="noopener">Ver página pública ↗</a>
+      <button class="btn ghost" id="backupBtn">Descargar respaldo</button>
+      <label class="btn ghost">Restaurar respaldo<input type="file" id="restoreFile" accept=".json,application/json" hidden /></label>
       <button class="btn ghost" id="logout">Salir</button>
     </div>
   </header>
@@ -285,6 +287,49 @@ $("importBtn").onclick = async () => {
   } catch(err){ say("Falló la importación: " + err.message, 1); await load().catch(() => {}); }
   b.disabled = false;
 };
+
+// <<BACKUP-START>>
+function validateWebBackup(b){
+  if(!b || b.tipo !== "respaldo-web-productos" || !Array.isArray(b.productos)) return "Ese archivo no es un respaldo del catálogo de la web.";
+  const bad = b.productos.findIndex(p => !p || !p.id || !p.categoria || !p.nombre || p.precio === undefined || p.precio === null);
+  return bad === -1 ? null : "El respaldo tiene un producto incompleto (número " + (bad + 1) + ").";
+}
+function restoreRow(p){
+  return { id:p.id, categoria:p.categoria, nombre:p.nombre, descripcion:p.descripcion ?? null, precio:Number(p.precio),
+           imagen:p.imagen ?? null, orden:p.orden ?? 0, visible:p.visible ?? true, created_at:p.created_at || new Date().toISOString() };
+}
+// <<BACKUP-END>>
+function download(name, obj){
+  const u = URL.createObjectURL(new Blob([JSON.stringify(obj)], { type:"application/json" }));
+  const a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(u), 5000);
+}
+const today = () => new Date().toISOString().slice(0, 10);
+const fetchAll = () => api("productos?select=*&order=categoria.asc,orden.asc,created_at.asc");
+const backupDoc = all => ({ tipo:"respaldo-web-productos", version:1, fecha:new Date().toISOString(), productos:all });
+
+$("backupBtn").onclick = async () => {
+  const b = $("backupBtn"); b.disabled = true;
+  try { const all = await fetchAll(); download("respaldo-web-" + today() + ".json", backupDoc(all)); say("Respaldo descargado: " + all.length + " productos ✔"); }
+  catch(err){ say("No se pudo crear el respaldo: " + err.message, 1); }
+  b.disabled = false;
+};
+$("restoreFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if(!f) return;
+  try {
+    let b; try { b = JSON.parse(await f.text()); } catch(_) { throw new Error("El archivo no es un respaldo válido."); }
+    const bad = validateWebBackup(b); if(bad) throw new Error(bad);
+    const fecha = b.fecha ? new Date(b.fecha).toLocaleDateString("es") : "el archivo";
+    if(!confirm("Restaurar respaldo del " + fecha + "\n\n• " + b.productos.length + " productos en el archivo\n• Los que ya existen se actualizan a como están en el archivo\n• Los que borraste vuelven\n• Los que agregaste después se conservan\n\nAntes se descargará una copia de lo que hay ahora. ¿Continuar?")) return;
+    download("respaldo-web-antes-de-restaurar-" + today() + ".json", backupDoc(await fetchAll()));
+    const rows = b.productos.map(restoreRow);
+    for(let i = 0; i < rows.length; i += 8){
+      say("Restaurando " + Math.min(i + 8, rows.length) + " de " + rows.length + "…");
+      await api("productos", { method:"POST", headers:{ Prefer:"resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(rows.slice(i, i + 8)) });
+    }
+    await load(); say("Respaldo restaurado: " + rows.length + " productos ✔");
+  } catch(err){ say(err.message, 1); }
+});
 
 if(session) start(); else showLogin();
 </script>
