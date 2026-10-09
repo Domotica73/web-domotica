@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Domótica y Seguridad · Cámaras, alarmas y control de acceso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12161C; --ink2:#1B2129; --ink-line:#2B3440;
+    --paper:#F6F4EF; --paper2:#EFEBE0; --paper-line:#DCD6C7;
+    --text:#1C2027; --text-soft:#5B6472;
+    --amber:#E8A33D; --amber-deep:#C97F1E; --green:#2FA97D;
+    --font-display:'Space Grotesk',sans-serif; --font-body:'Inter',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){ --paper:#181C22; --paper2:#1F242B; --paper-line:#2C333C; --text:#EDEBE4; --text-soft:#9CA3AD; }
+  }
+  :root[data-theme="dark"]{ --paper:#181C22; --paper2:#1F242B; --paper-line:#2C333C; --text:#EDEBE4; --text-soft:#9CA3AD; }
+  html{ scroll-behavior:smooth; scroll-padding-top:70px; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--paper); color:var(--text); font-family:var(--font-body); -webkit-font-smoothing:antialiased; }
+  img,svg{ max-width:100%; }
+  a{ color:inherit; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:0 24px; }
+
+  /* ---- nav ---- */
+  header{ position:sticky; top:0; z-index:30; background:var(--paper); border-bottom:1px solid var(--paper-line); padding-top:env(safe-area-inset-top,0px); }
+  nav.wrap{ display:flex; align-items:center; justify-content:space-between; height:64px; }
+  .logo{ font-family:var(--font-display); font-weight:700; font-size:17px; letter-spacing:-0.01em; display:flex; align-items:center; gap:8px; }
+  .logo .dot{ width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); }
+  .navlinks{ display:flex; gap:26px; font-size:13.5px; font-weight:500; }
+  .navlinks a{ text-decoration:none; opacity:.8; }
+  .navlinks a:hover{ opacity:1; }
+  .navlinks{ display:none; }
+  @media(min-width:760px){ .navlinks{ display:flex; } }
+  .btn{ display:inline-flex; align-items:center; gap:8px; font-family:var(--font-body); font-weight:600; font-size:14px; padding:10px 18px; border-radius:8px; text-decoration:none; border:1px solid transparent; }
+  .btn-wa{ background:var(--green); color:#08241A; }
+  .btn-ghost{ border-color:var(--paper-line); color:var(--text); }
+
+  /* ---- hero ---- */
+  .hero{ background:var(--ink); color:#EDEBE4; padding:64px 0 56px; position:relative; overflow:hidden; }
+  .hero-grid{ display:grid; grid-template-columns:1fr; gap:42px; align-items:center; }
+  @media(min-width:860px){ .hero-grid{ grid-template-columns:1.1fr 0.9fr; } }
+  .eyebrow{ font-family:var(--font-mono); font-size:11.5px; color:var(--amber); display:flex; align-items:center; gap:8px; margin-bottom:18px; }
+  .eyebrow .bar{ width:18px; height:1px; background:var(--amber); }
+  h1{ font-family:var(--font-display); font-weight:700; font-size:clamp(32px,5vw,48px); line-height:1.08; margin:0 0 18px; letter-spacing:-0.01em; }
+  .hero p.lead{ font-size:16px; line-height:1.6; color:#B9C0CB; max-width:46ch; margin:0 0 28px; }
+  .hero-ctas{ display:flex; flex-wrap:wrap; gap:12px; }
+  .status-strip{ margin-top:36px; display:flex; flex-wrap:wrap; gap:10px 22px; font-family:var(--font-mono); font-size:11px; color:#8792A0; }
+  .status-strip span{ display:flex; align-items:center; gap:6px; }
+  .status-strip i{ width:6px; height:6px; border-radius:50%; background:var(--green); }
+
+  .monitor{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  .mon-cell{ position:relative; border:1px solid var(--ink-line); border-radius:6px; padding:16px 10px; text-align:center; background:rgba(255,255,255,.02); }
+  .mon-cell::before,.mon-cell::after,.mon-cell b::before,.mon-cell b::after{ content:""; position:absolute; width:10px; height:10px; border-color:var(--amber); }
+  .mon-cell::before{ top:6px; left:6px; border-top:1.5px solid var(--amber); border-left:1.5px solid var(--amber); }
+  .mon-cell::after{ top:6px; right:6px; border-top:1.5px solid var(--amber); border-right:1.5px solid var(--amber); }
+  .mon-cell b{ display:contents; }
+  .mon-cell b::before{ bottom:6px; left:6px; border-bottom:1.5px solid var(--amber); border-left:1.5px solid var(--amber); }
+  .mon-cell b::after{ bottom:6px; right:6px; border-bottom:1.5px solid var(--amber); border-right:1.5px solid var(--amber); }
+  .mon-cell svg{ width:22px; height:22px; stroke:#EDEBE4; margin-bottom:8px; }
+  .mon-cell span{ display:block; font-size:11px; color:#9CA3AD; font-family:var(--font-mono); }
+
+  /* ---- categorías anchor strip ---- */
+  .catnav{ background:var(--paper2); border-bottom:1px solid var(--paper-line); }
+  .catnav .wrap{ display:flex; gap:8px; overflow-x:auto; padding-top:14px; padding-bottom:14px; }
+  .catnav a{ flex-shrink:0; display:flex; align-items:center; gap:7px; font-size:13px; font-weight:500; text-decoration:none; padding:8px 14px; border-radius:20px; border:1px solid var(--paper-line); color:var(--text); }
+  .catnav a svg{ width:14px; height:14px; stroke:var(--amber-deep); }
+
+  section{ padding:56px 0; }
+  .sec-head{ margin-bottom:30px; max-width:56ch; }
+  .sec-head .eyebrow{ color:var(--amber-deep); }
+  h2{ font-family:var(--font-display); font-weight:700; font-size:26px; margin:0 0 8px; }
+  .sec-head p{ color:var(--text-soft); font-size:14.5px; line-height:1.6; margin:0; }
+
+  .catblock{ padding-top:40px; border-top:1px solid var(--paper-line); }
+  .catblock:first-of-type{ border-top:none; padding-top:0; }
+  .cathead{ display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .cathead svg{ width:20px; height:20px; stroke:var(--amber-deep); }
+  .cathead h3{ font-family:var(--font-display); font-size:18px; font-weight:700; margin:0; }
+  .prod-grid{ display:grid; grid-template-columns:1fr; gap:14px; }
+  @media(min-width:520px){ .prod-grid{ grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); } }
+  .prod-grid.collapsible .prod-card:nth-child(n+5){ display:none; }
+  .prod-grid.collapsible.expanded .prod-card:nth-child(n+5){ display:block; }
+  .cat-toggle{ margin-top:14px; font-size:12.5px; font-weight:600; color:var(--green); background:none; border:none; padding:0; cursor:pointer; font-family:inherit; }
+  .prod-card{ position:relative; border:1px solid var(--paper-line); border-radius:8px; padding:18px 16px; background:var(--paper); }
+  .prod-card::before,.prod-card::after{ content:""; position:absolute; width:9px; height:9px; top:8px; border-top:1.5px solid var(--paper-line); }
+  .prod-card::before{ left:8px; border-left:1.5px solid var(--paper-line); }
+  .prod-card::after{ right:8px; border-right:1.5px solid var(--paper-line); }
+  .prod-card.has-photo{ padding-top:14px; }
+  .prod-photo{ width:100%; height:150px; display:flex; align-items:center; justify-content:center; background:var(--paper2); border-radius:6px; margin-bottom:14px; overflow:hidden; }
+  .prod-photo img{ max-width:78%; max-height:82%; object-fit:contain; }
+  .prod-name{ font-weight:600; font-size:14.5px; margin-bottom:4px; }
+  .prod-unit{ font-size:12px; color:var(--text-soft); margin-bottom:14px; }
+  .prod-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .prod-price{ font-family:var(--font-mono); font-weight:600; font-size:15px; color:var(--amber-deep); }
+  .prod-cta{ font-size:12px; font-weight:600; text-decoration:none; color:var(--green); white-space:nowrap; }
+  .cat-more{ margin-top:14px; font-size:12.5px; color:var(--text-soft); }
+  .cat-more a{ color:var(--green); font-weight:600; text-decoration:none; }
+
+  .why{ background:var(--paper2); }
+  .why-grid{ display:grid; grid-template-columns:1fr; gap:22px; }
+  @media(min-width:760px){ .why-grid{ grid-template-columns:repeat(3,1fr); } }
+  .why-item h4{ font-family:var(--font-display); font-size:16px; margin:0 0 8px; }
+  .why-item p{ font-size:13.5px; color:var(--text-soft); line-height:1.6; margin:0; }
+  .why-item svg{ width:22px; height:22px; stroke:var(--amber-deep); margin-bottom:12px; }
+
+  footer{ background:var(--ink); color:#B9C0CB; padding:48px 0 calc(28px + env(safe-area-inset-bottom,0px)); }
+  .foot-grid{ display:flex; flex-direction:column; gap:24px; }
+  @media(min-width:760px){ .foot-grid{ flex-direction:row; justify-content:space-between; align-items:flex-start; } }
+  footer .logo{ color:#EDEBE4; margin-bottom:10px; }
+  footer p{ font-size:13px; line-height:1.7; margin:0; color:#8792A0; }
+  .foot-cta{ display:flex; flex-direction:column; gap:10px; align-items:flex-start; }
+  .foot-cta .btn-wa{ padding:12px 22px; font-size:14.5px; }
+  .foot-links{ display:flex; flex-wrap:wrap; gap:8px; }
+  .foot-links a{ font-size:12px; border:1px solid var(--ink-line); border-radius:14px; padding:5px 11px; text-decoration:none; color:#B9C0CB; }
+  .foot-bottom{ margin-top:34px; padding-top:20px; border-top:1px solid var(--ink-line); font-size:11.5px; color:#6B7480; display:flex; flex-wrap:wrap; gap:8px 16px; }
+  .cat-msg{font-size:13.5px;color:var(--text-soft);}
+  .cat-foot{margin-top:28px;font-size:13.5px;color:var(--text-soft);}
+  .cat-foot a{color:var(--green);font-weight:600;text-decoration:none;}
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo"><span class="dot"></span>DOMÓTICA &amp; SEGURIDAD</div>
+    <div class="navlinks">
+      <a href="#catalogo">Catálogo</a>
+      <a href="#nosotros">Nosotros</a>
+      <a href="#contacto">Contacto</a>
+    </div>
+    <a class="btn btn-wa" href="https://wa.me/593987785325?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20sus%20productos" target="_blank" rel="noopener">WhatsApp</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><span class="bar"></span>CÁMARAS · ALARMAS · CERCOS · DOMÓTICA</div>
+      <h1>Tu propiedad, vigilada las 24 horas.</h1>
+      <p class="lead">Instalamos y equipamos casas y negocios con sistemas de videovigilancia, alarmas, cercos eléctricos y control de acceso. Cotización clara, instalación profesional.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-wa" href="https://wa.me/593987785325?text=Hola%2C%20quiero%20una%20cotizaci%C3%B3n" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>
+        <a class="btn btn-ghost" href="#catalogo">Ver catálogo</a>
+      </div>
+      <div class="status-strip">
+        <span><i></i>CÁMARAS · EN LÍNEA</span>
+        <span><i></i>ALARMAS · ARMADAS</span>
+        <span><i></i>SOPORTE · DISPONIBLE</span>
+      </div>
+    </div>
+    <div class="monitor">
+      <div class="mon-cell"><b></b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span>CÁMARAS</span></div>
+      <div class="mon-cell"><b></b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span>ALARMAS</span></div>
+      <div class="mon-cell"><b></b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>CERCOS</span></div>
+      <div class="mon-cell"><b></b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>DOMÓTICA</span></div>
+    </div>
+  </div>
+</section>
+
+<nav class="catnav">
+  <div class="wrap">
+    <a href="#cat-camaras"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Cámaras</a>
+    <a href="#cat-alarmas"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg>Alarmas</a>
+    <a href="#cat-cercos"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Cercos eléctricos</a>
+    <a href="#cat-domotica"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Domótica</a>
+    <a href="#cat-acceso"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11a3 3 0 100-6 3 3 0 000 6z"/><path d="M4.5 20a8 8 0 0115 0"/></svg>Control de acceso</a>
+    <a href="#cat-accesorios"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>Accesorios</a>
+  </div>
+</nav>
+
+<section id="catalogo">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="bar"></span>CATÁLOGO</div>
+      <h2>Equipos para cada necesidad</h2>
+      <p>Estos son nuestros productos disponibles. Si necesitas algo que no ves, escríbenos y te armamos una cotización a la medida de tu casa o negocio.</p>
+    </div>
+
+    <div id="catalogo-root"><p class="cat-msg">Cargando catálogo…</p></div>
+    <p class="cat-foot">¿No ves lo que buscas? <a href="https://wa.me/593987785325?text=Hola%2C%20quiero%20consultar%20por%20un%20producto" target="_blank" rel="noopener">Escríbenos por WhatsApp</a> y te cotizamos.</p>
+  </div>
+</section>
+
+<section class="why" id="nosotros">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="bar"></span>POR QUÉ ELEGIRNOS</div>
+      <h2>Instalación real, seguimiento real</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-item"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><h4>Cotización clara</h4><p>Precios definidos por equipo y servicio, sin sorpresas ni letra pequeña.</p></div>
+      <div class="why-item"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg><h4>Instalación profesional</h4><p>Equipo propio para dejar cada cámara, cerco o panel bien montado y funcionando.</p></div>
+      <div class="why-item"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><h4>Atención directa</h4><p>Hablas con nosotros por WhatsApp, sin filas de espera ni operadores automáticos.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer id="contacto">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo">DOMÓTICA &amp; SEGURIDAD</div>
+        <p>El Niagara, calle Algarrobos y Eucalipto<br>Latacunga · Ecuador<br>RUC 0502340722001</p>
+      </div>
+      <div class="foot-cta">
+        <a class="btn btn-wa" href="https://wa.me/593987785325?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20sus%20productos" target="_blank" rel="noopener">Escríbenos: +593 98 778 5325</a>
+        <div class="foot-links">
+          <a href="#cat-camaras">Cámaras</a><a href="#cat-alarmas">Alarmas</a><a href="#cat-cercos">Cercos</a>
+          <a href="#cat-domotica">Domótica</a><a href="#cat-acceso">Control de acceso</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span id="yr"></span> Domótica y Seguridad</span>
+      <span>Respuesta por WhatsApp en horario de atención</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const SUPABASE_URL = "https://fbbwovddsuhazsgxpyma.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiYndvdmRkc3VoYXpzZ3hweW1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3MDUzMjUsImV4cCI6MjEwMzI4MTMyNX0.iIQox0aUa0rQ3_nxUftKHWgLqYyPgjcTP-liT8AwoDA";
+const WA = "593987785325";
+const CATS = [{"id": "camaras", "titulo": "Cámaras de vigilancia", "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M23 7l-7 5 7 5V7z\"/><rect x=\"1\" y=\"5\" width=\"15\" height=\"14\" rx=\"2\"/></svg>"}, {"id": "alarmas", "titulo": "Alarmas", "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9\"/><path d=\"M13.73 21a2 2 0 01-3.46 0\"/></svg>"}, {"id": "cercos", "titulo": "Cercos eléctricos", "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"/></svg>"}, {"id": "domotica", "titulo": "Domótica", "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z\"/></svg>"}, {"id": "acceso", "titulo": "Control de acceso", "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 11a3 3 0 100-6 3 3 0 000 6z\"/><path d=\"M4.5 20a8 8 0 0115 0\"/></svg>"}, {"id": "accesorios", "titulo": "Accesorios", "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 8l-9-5-9 5 9 5 9-5z\"/><path d=\"M3 8v8l9 5 9-5V8\"/></svg>"}];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function card(p){
+  const msg = encodeURIComponent("Hola, quiero cotizar: " + p.nombre);
+  const img = p.imagen ? `<div class="prod-photo"><img src="${esc(p.imagen)}" alt="${esc(p.nombre)}" loading="lazy"></div>` : "";
+  return `<div class="prod-card${p.imagen ? " has-photo" : ""}">${img}<div class="prod-name">${esc(p.nombre)}</div><div class="prod-unit">${esc(p.descripcion || "")}</div><div class="prod-row"><span class="prod-price">$ ${Number(p.precio).toFixed(2)}</span><a class="prod-cta" href="https://wa.me/${WA}?text=${msg}" target="_blank" rel="noopener">Cotizar →</a></div></div>`;
+}
+function moreLabel(n){ return "Ver " + n + " producto" + (n > 1 ? "s" : "") + " más ▾"; }
+function block(c, items){
+  const many = items.length > 4;
+  return `<div class="catblock" id="cat-${c.id}"><div class="cathead">${c.icon}<h3>${esc(c.titulo)}</h3></div><div class="prod-grid${many ? " collapsible" : ""}" id="grid-${c.id}">${items.map(card).join("")}</div>${many ? `<button class="cat-toggle" onclick="toggleGrid('grid-${c.id}', this)">${moreLabel(items.length - 4)}</button>` : ""}</div>`;
+}
+function toggleGrid(id, btn){
+  const g = document.getElementById(id);
+  g.classList.toggle("expanded");
+  const n = g.querySelectorAll(".prod-card:nth-child(n+5)").length;
+  btn.textContent = g.classList.contains("expanded") ? "Ver menos ▴" : moreLabel(n);
+}
+async function loadCatalog(){
+  const root = document.getElementById("catalogo-root");
+  try{
+    const r = await fetch(SUPABASE_URL + "/rest/v1/productos?select=id,categoria,nombre,descripcion,precio,imagen&visible=eq.true&order=orden.asc,created_at.asc",
+      { headers: { apikey: SUPABASE_ANON_KEY, Authorization: "Bearer " + SUPABASE_ANON_KEY } });
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const rows = await r.json();
+    const out = CATS.map(c => { const items = rows.filter(p => p.categoria === c.id); return items.length ? block(c, items) : ""; }).join("");
+    root.innerHTML = out || '<p class="cat-msg">Pronto publicaremos nuestro catálogo. Mientras tanto, escríbenos por WhatsApp.</p>';
+    if(location.hash){ try{ const el = document.querySelector(location.hash); if(el) el.scrollIntoView(); }catch(e){} }
+  }catch(e){
+    root.innerHTML = '<p class="cat-msg">No pudimos cargar el catálogo en este momento. Escríbenos por WhatsApp y te ayudamos.</p>';
+  }
+}
+document.getElementById("yr").textContent = new Date().getFullYear();
+loadCatalog();
+</script>
+</body>
+</html>
